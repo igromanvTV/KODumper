@@ -1,0 +1,12 @@
+{
+  "RBXPrintPattern": "48 8B C4 48 89 50 10 4C 89 40 18 4C 89 48 20 53 57 48 83 EC 78 8B D9 33 FF",
+  "TaskSchedulerPattern": "? ? ? ? 0F 28 D0 48 8D 15 ? ? ? ? 48 8D 8D ? ? ? ? E8 ? ? ? ? 49 8B 0F 48 8D 81 ? ? ? ?",
+  "LuaONilObjectPattern": "48 83 C0 03 48 C1 E0 04 49 03 C1 C3 48 8D 05",
+  "LuaStateGetterPattern": "48 8D 88 ? ? ? ? 4C 8D 84 24 ? ? ? ? 48 8D 94 24 ? ? ? ? E8 ? ? ? ?",
+  "LuaStateDecoderPattern": "48 8D 88 ? ? ? ? E8 ? ? ? ? 48 8B F0",
+  "Pseudo2AddressPattern": "41 B8 EE D8 FF FF",
+  "TopBasePattern": "48 ? ? ? 48 ? ? ? 48 8B C2 48 2B C1 48 C1 F8 04 83 F8 02 ? ? ? ? ? ? 48 8D 05 ? ? ? ? 48 3B CA 48 0F 42 C1 48 8B C8",
+  "ProximityPromptTriggerPattern": "? ? ? ? ? ? ? ? ? 55 53 56 57 41 56 48 8D 6C 24 ? 48 81 EC ? ? ? ? 48 8B F1 48 8B 79 50",
+  "TaskDeferPattern": "40 55 53 56 57 41 54 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 4C 8B F1 48 C7 45 ? ? ? ? ?",
+  "PushInstancePattern": "48 89 5C 24 ? 57 48 83 EC 20 48 8B FA 48 8B D9 E8 ? ? ? ? 84 C0 74 15"
+}
