@@ -1,61 +1,60 @@
-const { hex } = require( "./String" );
-
 const isPrologue = ( address, buffer ) => {
-    return buffer.readUInt32BE( address ) === 0x488BC4;
+    return address;
 }
 
 /**
  * Проверка на эпилог функции
  * @param address
  * @param buffer
- * @returns {boolean}
+ * @returns {number}
  */
-const isEpilogue = ( address, buffer ) => {
-    const firstByte = buffer.readUInt8( address );
-    const secondByte = buffer.readUInt8( address + 1 );
+const FindEpilogue = ( address, buffer ) => {
+    while (buffer[address] !== 0xC3) {
+        address++;
+    }
 
-    return (
-            firstByte === 0xC3 && secondByte === 0xCC
-        ) ||
-        (
-            firstByte === 0x5F && secondByte === 0xC3
-        ); // ret ( 0xC3 ), second int 3 ( 0xCC )
+    return address;
 }
 
 /**
  * Сканирование байтов на наличие xor, sub операций
- * @param address
+ * @param start
+ * @param end
  * @param buffer
  * @returns {*[]}
  */
-// const getInstructions = ( address, buffer ) => {
-//     let instructions = []
-//
-//     while (!isEpilogue( address, buffer )) {
-//         const byte = buffer.readUInt8( address );
-//
-//         if ( byte === 0x48 ) { // lea
-//             const nextByte = buffer[address + 1];
-//
-//             switch (nextByte) {
-//                 case 0x29: // sub
-//                     instructions.push( {
-//                         instruction: "sub", address: address,
-//                     } );
-//                     break;
-//                 case 0x33: // xor
-//                     instructions.push( {
-//                         instruction: "xor", address: address,
-//                     } );
-//                     break;
-//             }
-//         }
-//
-//         address++;
-//     }
-//     return instructions;
-// }
+const GetInstructions = ( start, end, buffer ) => {
+    let instructions = []
+
+    for (let offset = start; offset <= end; offset++) {
+        const byte = buffer.readUInt8( offset );
+
+        if ( byte === 0x48 ) { // lea
+            const nextByte = buffer[offset + 1];
+
+            switch (nextByte) {
+                case 0x29: // sub
+                    instructions.push( {
+                        instruction: "sub", address: offset,
+                    } );
+                    break;
+                case 0x33: // xor
+                    instructions.push( {
+                        instruction: "xor", address: offset,
+                    } );
+                    break;
+                case 0x03:
+                    instructions.push( {
+                        instruction: "add", address: offset,
+                    } );
+                    break;
+            }
+        }
+    }
+
+    return instructions;
+}
 
 module.exports = {
-    // isPrologue, isEpilogue, getInstructions
+    FindEpilogue, GetInstructions
 }

@@ -20,7 +20,7 @@ const parse = ( signature ) => {
  * @constructor
  */
 
-const scanPattern = ( signature, buffer, start = 0, end = 0 ) => {
+const ScanPattern = ( signature, buffer, start = 0, end = 0 ) => {
     /* Проверяем является ли buffer действительным
        и весит ли он больше 80 мб
      */
@@ -61,5 +61,5 @@ const scanPattern = ( signature, buffer, start = 0, end = 0 ) => {
 }
 
 module.exports = {
-    scanPattern,
+    ScanPattern,
 };

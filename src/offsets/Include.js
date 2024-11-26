@@ -1,3 +1,5 @@
+/* Смещения */
+
 const { DumpLuaState } = require( "./luastate/DumpLuaState" );
 const { DumpLuaStateDecoder } = require( "./luastate/DumpLuaStateDecoder" );
 const { DumpLuaONilObject } = require( "./unsorted/DumpLuaONilObject" );
@@ -5,45 +7,79 @@ const { DumpRBXPrint } = require( "./unsorted/DumpRBXPrint" );
 const { DumpTaskScheduler } = require( "./unsorted/DumpTaskScheduler" );
 const { DumpProximityPromptTrigger } = require( "./unsorted/DumpProximityPromptTrigger" );
 const { DumpTaskDefer } = require( "./unsorted/DumpTaskDefer" );
-const { hex } = require( "../modules/String" );
 const { DumpPushInstance } = require( "./unsorted/DumpPushInstance" );
 
+const { toHex } = require( "../modules/String" );
+const { DumpGlobalEncryption } = require( "./encryption/DumpEncryption" );
+
+/**
+ * Общая функция со сбором всех сдампленых смещений
+ * @param buffer
+ * @returns {string}
+ * @constructor
+ */
 const Dump = ( buffer ) => {
     if ( !Buffer.isBuffer( buffer ) ) {
         throw new TypeError( "The provided argument is not a Buffer" );
     }
 
-    let luaState = DumpLuaState( buffer );
-    let luaStateDecoder = DumpLuaStateDecoder( buffer );
-    let luaStateFields = luaState.fields;
+    let LuaState = DumpLuaState( buffer );
+    let LuaStateDecoder = DumpLuaStateDecoder( buffer );
+    let LuaStateFields = LuaState.fields;
 
     return JSON.stringify( {
         "version-8aa36bbf0eb1494a": {
             "addresses": {
-                "LuaONilObject": hex( DumpLuaONilObject( buffer ) ),
-                "TaskScheduler": hex( DumpTaskScheduler( buffer ) ),
-                "RBXPrint": hex( DumpRBXPrint( buffer ) ),
-                "LuaState": hex( luaState.offset ),
-                "LuaStateDecoder": hex( luaStateDecoder.offset ),
-                "ProximityPromptTrigger": hex( DumpProximityPromptTrigger( buffer ) ),
-                "TaskDefer": hex( DumpTaskDefer( buffer ) ),
-                "PushInstance": hex( DumpPushInstance( buffer ) ),
+                "LuaONilObject": toHex( DumpLuaONilObject( buffer ) ),
+                "TaskScheduler": toHex( DumpTaskScheduler( buffer ) ),
+                "RBXPrint": toHex( DumpRBXPrint( buffer ) ),
+                "LuaState": toHex( LuaState.offset ),
+                "Decoder": toHex( LuaStateDecoder.offset ),
+                "ProximityPromptTrigger": toHex( DumpProximityPromptTrigger( buffer ) ),
+                "TaskDefer": toHex( DumpTaskDefer( buffer ) ),
+                "PushInstance": toHex( DumpPushInstance( buffer ) ),
             },
             "fields": {
                 "luastate": {
-                    "reference": hex( luaState.reference ),
-                    "decryption": hex( luaStateDecoder.reference ),
+                    "reference": toHex( LuaState.reference ),
+                    "decryption": toHex( LuaStateDecoder.reference ),
                     "fields": {
-                        "top": hex( luaStateFields.top ),
-                        "base": hex( luaStateFields.base )
+                        "top": toHex( LuaStateFields.Top ),
+                        "base": toHex( LuaStateFields.Base ),
+                        // "global": toHex( LuaStateFields.global ),
+                        // "ci": toHex( LuaStateFields.callinfo ),
+                        // "stack_last": toHex( LuaStateFields.stacklast ),
+                        // "stack": toHex( LuaStateFields.stack ),
                     }
                 },
-                "proto": {}
+                "proto": {
+                    "fields": {
+                        // "k": toHex( protoFields.k ),
+                        // "code": toHex( protoFields.code ),
+                        // "p": toHex( protoFields.p ),
+                        // "codeentry": toHex( protoFields.codeentry ),
+                        // "sizecode": toHex( protoFields.sizecode ),
+                        // "sizep": toHex( protoFields.sizep ),
+                        // "sizelocvars": toHex( protoFields.sizelocvars ),
+                        // "sizeupvalues": toHex( protoFields.sizeupvalues ),
+                        // "sizek": toHex( protoFields.sizek ),
+                        // "sizelineinfo": toHex( protoFields.linedefined ),
+                        // "linegaplog2": toHex( protoFields.linegaplog2 ),
+                        // "linedefined": toHex( protoFields.linedefined ),
+                        // "bytecodeid": toHex( protoFields.bytecodeid )
+                    }
+                }
             },
             "ecryptions": {
-                "luastate": {
-                    //"global": "xor",
-                }
+                "global": DumpGlobalEncryption( buffer ),
+                "stacksize": "",
+                "proto_member_one": "",
+                "proto_member_two": "",
+                "debugname": "",
+                "debugsign": "",
+                "typeinfo": "",
+                "hash": "",
+                "len": ""
             },
             "shuffles": {}
         }

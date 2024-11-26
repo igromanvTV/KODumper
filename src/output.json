@@ -1,1 +1,39 @@
-{"version-8aa36bbf0eb1494a":{"addresses":{"LuaONilObject":"40a9108","TaskScheduler":"2d91830","RBXPrint":"12db520","LuaState":"d35d80","LuaStateDecoder":"1aed4f0","ProximityPromptTrigger":"16e2710","TaskDefer":"ec1550","PushInstance":"e20b20"},"fields":{"luastate":{"reference":"118","decryption":"88","fields":{"top":"28","base":"20"}},"proto":{}},"ecryptions":{"luastate":{}},"shuffles":{}}}
+{
+  "version-8aa36bbf0eb1494a": {
+    "addresses": {
+      "LuaONilObject": "4496728",
+      "TaskScheduler": "2c49300",
+      "RBXPrint": "124ced0",
+      "LuaState": "cc3940",
+      "Decoder": "1a9dd30",
+      "ProximityPromptTrigger": "NaN",
+      "TaskDefer": "e334d0",
+      "PushInstance": "d75a20"
+    },
+    "fields": {
+      "luastate": {
+        "reference": "118",
+        "decryption": "88",
+        "fields": {
+          "top": "28",
+          "base": "10"
+        }
+      },
+      "proto": {
+        "fields": {}
+      }
+    },
+    "ecryptions": {
+      "global": "",
+      "stacksize": "",
+      "proto_member_one": "",
+      "proto_member_two": "",
+      "debugname": "",
+      "debugsign": "",
+      "typeinfo": "",
+      "hash": "",
+      "len": ""
+    },
+    "shuffles": {}
+  }
+}

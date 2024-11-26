@@ -1,6 +1,6 @@
 const config = require( "../../config/Patterns.json" )
 
-const { scanPattern } = require( "../../modules/Pattern" );
+const { ScanPattern } = require( "../../modules/Pattern" );
 
 const {
     SHIFT,
@@ -9,12 +9,12 @@ const {
 
 
 const DumpLuaONilObject = ( buffer ) => {
-    let luaONilObject = scanPattern( config.LuaONilObjectPattern, buffer );
-    let luaONilObjectRelative = buffer.readInt32LE( luaONilObject.offset + luaONilObject.size );
-    let luaONilObjectNext = (luaONilObject.offset + luaONilObject.size) + InstructionSizes.LEA; // LEA is instruction size (7)
+    let LuaONilObject = ScanPattern( config.LuaONilObjectPattern, buffer );
+    let LuaONilObjectRelative = buffer.readInt32LE( LuaONilObject.offset + LuaONilObject.size );
+    let LuaONilObjectNext = (LuaONilObject.offset + LuaONilObject.size) + InstructionSizes.LEA; // LEA is instruction size (7)
 
     // 3 is start instruction bytes 48 8D 05
-    return luaONilObjectNext + luaONilObjectRelative + SHIFT - 3;
+    return LuaONilObjectNext + LuaONilObjectRelative + SHIFT - 3;
 }
 
 module.exports.DumpLuaONilObject = DumpLuaONilObject;

@@ -1,34 +1,35 @@
-const { scanPattern } = require( "../../modules/Pattern" );
+const { ScanPattern } = require( "../../modules/Pattern" );
 const config = require( "../../config/Patterns.json" );
 const { InstructionSizes, SHIFT } = require( "../../constants/Instructions" );
+const { toHex } = require( "../../modules/String" );
 /**
  *
  * @param buffer
- * @returns {{reference: number, offset: number, fields: {top: string, base: string}}}
+ * @returns {{reference: number, offset: number, fields: {Top: number, Base: number}}}
  * @constructor
  */
 
 const DumpLuaState = ( buffer ) => {
-    const luaStateGetterMatch = scanPattern( config.LuaStateGetterPattern, buffer );
-    const luaStateTopBaseMatch = scanPattern( config.TopBasePattern, buffer );
-    const luaFreeArrayMatch = scanPattern( "48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 48 8B DA 49 8B F0", buffer );
+    const LuaStateGetterMatch = ScanPattern( config.LuaStateGetterPattern, buffer );
+    const TopBaseMatch = ScanPattern( config.TopBasePattern, buffer );
+    const LuaFreeArrayMatch = ScanPattern( "48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 48 8B DA 49 8B F0", buffer );
 
-    const luaStateFieldOffset = buffer.readUInt16LE( luaStateGetterMatch.offset + 3 );
-    const luaStateGetterOffset = (
-        buffer.readUInt32LE( luaStateGetterMatch.offset + luaStateGetterMatch.size - 4 ) + (
-            luaStateGetterMatch.offset + luaStateGetterMatch.size - 5
+    const LuaStateFieldOffset = buffer.readUInt16LE( LuaStateGetterMatch.offset + 3 );
+    const GetterOffset = (
+        buffer.readUInt32LE( LuaStateGetterMatch.offset + LuaStateGetterMatch.size - 4 ) + (
+            LuaStateGetterMatch.offset + LuaStateGetterMatch.size - 5
         ) + InstructionSizes.CALL
     );
 
-    let top = buffer.readUInt8( luaStateTopBaseMatch.offset + 3 );
-    let base = buffer.readUInt8( luaStateTopBaseMatch.offset + 7 );
+    let Top = buffer.readUInt8( TopBaseMatch.offset + 3 );
+    let Base = buffer.readUInt8( TopBaseMatch.offset + 7 );
 
     return {
-        offset: luaStateGetterOffset + SHIFT,
-        reference: luaStateFieldOffset,
+        offset: GetterOffset + SHIFT,
+        reference: LuaStateFieldOffset,
         fields: {
-            top,
-            base
+            Top,
+            Base
         }
     }
 }

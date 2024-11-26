@@ -3,7 +3,7 @@
  * @param offset
  * @returns {string}
  */
-const hex = ( offset ) => {
+const toHex = ( offset ) => {
     if ( typeof offset !== "number" ) {
         return "";
     }
@@ -41,7 +41,7 @@ const read = ( offset, buffer ) => {
 }
 
 module.exports = {
-    hex,
+    toHex,
     read,
     terminate
 }
