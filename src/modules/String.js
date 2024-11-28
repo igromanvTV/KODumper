@@ -3,8 +3,8 @@
  * @param offset
  * @returns {string}
  */
-const toHex = ( offset ) => {
-    if ( typeof offset !== "number" ) {
+const toHex = (offset) => {
+    if (typeof offset !== "number") {
         return "";
     }
 
@@ -16,7 +16,7 @@ const toHex = ( offset ) => {
  * @param string
  * @returns {*}
  */
-const terminate = ( string ) => {
+const terminate = (string) => {
     return string.replace( /\0/g, '' );
 }
 
@@ -26,7 +26,7 @@ const terminate = ( string ) => {
  * @param buffer
  * @returns {string}
  */
-const read = ( offset, buffer ) => {
+const read = (offset, buffer) => {
     let byte = buffer[offset];
 
     let string = "";

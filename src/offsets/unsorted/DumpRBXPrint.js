@@ -1,9 +1,9 @@
-const { SHIFT } = require( "../../constants/Instructions" );
+const { shift } = require( "../../constants/Instructions" );
 const config = require( "../../config/Patterns.json" )
-const { ScanPattern } = require( "../../modules/Pattern" );
+const { scanPattern } = require( "../../modules/Pattern" );
 
-const DumpRBXPrint = ( buffer ) => {
-    return ScanPattern( config.RBXPrintPattern, buffer ).offset + SHIFT;
+const dumpRBXPrint = ( buffer ) => {
+    return scanPattern( config.RBXPrintPattern, buffer ).offset + shift;
 }
 
-module.exports.DumpRBXPrint = DumpRBXPrint;
+module.exports.dumpRBXPrint = dumpRBXPrint;

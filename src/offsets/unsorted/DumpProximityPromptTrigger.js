@@ -1,9 +1,9 @@
-const { ScanPattern } = require( "../../modules/Pattern" );
+const { scanPattern } = require( "../../modules/Pattern" );
 const config = require( "../../config/Patterns.json" );
-const { SHIFT } = require( "../../constants/Instructions" );
+const { shift } = require( "../../constants/Instructions" );
 
-const DumpProximityPromptTrigger = ( buffer ) => {
-    return ScanPattern( config.ProximityPromptTriggerPattern, buffer ).offset + SHIFT;
+const dumpProximityPromptTrigger = (buffer) => {
+    return scanPattern( config.ProximityPromptTriggerPattern, buffer ).offset + shift;
 }
 
-module.exports.DumpProximityPromptTrigger = DumpProximityPromptTrigger;
+module.exports.dumpProximityPromptTrigger = dumpProximityPromptTrigger;

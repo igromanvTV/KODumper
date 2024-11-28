@@ -1,9 +1,9 @@
 const {
-    SHIFT,
-    InstructionSizes
+    shift,
+    instructionsSizes, opCode
 } = require( "../constants/Instructions" );
 
-const { FindSection } = require( "./Section" );
+const { findSection } = require( "./Section" );
 const { terminate } = require( "./String" );
 
 /**
@@ -14,20 +14,23 @@ const { terminate } = require( "./String" );
  * @returns {*[]}
  * @constructor
  */
-const FindXrefLinks = ( buffer, section, offset ) => {
+const findXrefLinks = (buffer, section, offset) => {
     const links = [];
 
     for (let sectionOffset = section.pointer; sectionOffset <= section.pointer + section.size; sectionOffset++) {
         const byte = buffer.readUInt8( sectionOffset );
 
-        if ( byte === 0x48 ) // LEA offset
+        if (byte === opCode.REX) // LEA offset
         {
+            // рассчитывание смещения в памяти
             const relative = buffer.readInt32LE( sectionOffset + 3 );
             const absolute = (
-                relative + sectionOffset + InstructionSizes.LEA
+                relative + sectionOffset + instructionsSizes.LEA
             );
 
-            if ( absolute === offset - SHIFT ) links.push( sectionOffset + SHIFT );
+            // если абослютное смещение соотвествует искомому смещению - сдвиг
+
+            if (absolute === offset - shift) links.push( sectionOffset + shift );
         }
     }
 
@@ -42,19 +45,19 @@ const FindXrefLinks = ( buffer, section, offset ) => {
  * @constructor
  */
 
-const scanXref = ( target, buffer ) => {
-    if ( typeof target !== 'string' ) {
+const scanXref = (target, buffer) => {
+    if (typeof target !== 'string') {
         throw new TypeError( "The provided argument is not a String" );
     }
 
-    if ( !Buffer.isBuffer( buffer ) || buffer.length < 80 * (
+    if (!Buffer.isBuffer( buffer ) || buffer.length < 80 * (
         1024 * 1024
-    ) ) {
+    )) {
         throw new TypeError( "The provided argument is not a Buffer or Buffer size is invalid ( > 80)" );
     }
 
-    const rdataSection = FindSection( ".rdata", buffer );
-    const textSection = FindSection( ".text", buffer );
+    const rdataSection = findSection( ".rdata", buffer );
+    const textSection = findSection( ".text", buffer );
     const rdataSectionOffset = rdataSection.pointer;
     const rdataSectionSize = rdataSection.size;
 
@@ -64,10 +67,10 @@ const scanXref = ( target, buffer ) => {
         // Читаем байт
         const byte = buffer[offset];
         // Если байт равняется 0 (конец строки) и строка ра
-        if ( byte === 0 ) {
-            if ( string === terminate( target ) ) {
+        if (byte === 0) {
+            if (string === terminate( target )) {
                 // получаем ссылки на функции, в которых используется данная строка
-                return FindXrefLinks( buffer, textSection, offset - target.length + 0x1800 );
+                return findXrefLinks( buffer, textSection, offset - target.length + 0x1800 );
             }
             string = '';
         } else {

@@ -1,16 +1,16 @@
 const {
-    SHIFT
+    shift
 } = require( "../../constants/Instructions" );
 
 const config = require( '../../config/Patterns.json' );
 
-const { ScanPattern } = require( "../../modules/Pattern" );
+const { scanPattern } = require( "../../modules/Pattern" );
 
-const DumpTaskScheduler = ( buffer ) => {
-    let TaskScheduler = ScanPattern( config.TaskSchedulerPattern, buffer );
+const dumpTaskScheduler = ( buffer ) => {
+    let TaskScheduler = scanPattern( config.TaskSchedulerPattern, buffer );
     let TaskSchedulerRelative = buffer.readUInt32LE( TaskScheduler.offset );
 
-    return TaskSchedulerRelative + TaskScheduler.offset + 4 + SHIFT;
+    return TaskSchedulerRelative + TaskScheduler.offset + 4 + shift;
 }
 
-module.exports.DumpTaskScheduler = DumpTaskScheduler;
+module.exports.dumpTaskScheduler = dumpTaskScheduler;

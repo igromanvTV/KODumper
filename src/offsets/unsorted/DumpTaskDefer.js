@@ -1,8 +1,8 @@
-const { ScanPattern } = require( "../../modules/Pattern" );
+const { scanPattern } = require( "../../modules/Pattern" );
 const config = require( '../../config/Patterns.json' );
-const { SHIFT } = require( "../../constants/Instructions" );
-const DumpTaskDefer = ( buffer ) => {
-    return ScanPattern( config.TaskDeferPattern, buffer ).offset + SHIFT;
+const { shift } = require( "../../constants/Instructions" );
+const dumpTaskDefer = ( buffer ) => {
+    return scanPattern( config.TaskDeferPattern, buffer ).offset + shift;
 }
 
-module.exports.DumpTaskDefer = DumpTaskDefer;
+module.exports.dumpTaskDefer = dumpTaskDefer;

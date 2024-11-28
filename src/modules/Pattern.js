@@ -1,4 +1,3 @@
-/* constants */
 /**
  * Парсинг сигнатуры с строчного вида в массив из байтов
  * @param signature
@@ -6,7 +5,7 @@
  * @constructor
  */
 
-const parse = ( signature ) => {
+const parse = (signature) => {
     return signature.split( " " ).map( byte => byte === '?' ? null : parseInt( byte, 16 ) );
 }
 
@@ -16,21 +15,20 @@ const parse = ( signature ) => {
  * @param buffer
  * @param start
  * @param end
- * @returns {number|Error|{offset: null, size: null}}
- * @constructor
+ * @returns {number|{offset: number, size: number}|TypeError}
  */
 
-const ScanPattern = ( signature, buffer, start = 0, end = 0 ) => {
+const scanPattern = (signature, buffer, start = 0, end = 0) => {
     /* Проверяем является ли buffer действительным
        и весит ли он больше 80 мб
      */
-    if ( !Buffer.isBuffer( buffer ) || buffer.length < 80 * (
+    if (!Buffer.isBuffer( buffer ) || buffer.length < 80 * (
         1024 * 1024
-    ) ) {
+    )) {
         throw new TypeError( "The provided argument is not a Buffer or Buffer size is invalid ( > 80)" );
     }
 
-    if ( typeof signature !== 'string' ) {
+    if (typeof signature !== 'string') {
         return new TypeError( "The provided argument is not a String" );
     }
 
@@ -43,13 +41,13 @@ const ScanPattern = ( signature, buffer, start = 0, end = 0 ) => {
         let found = true;
 
         for (index = 0; index < parsedSignature.length; index++) {
-            if ( parsedSignature[index] !== null && buffer[offset + index] !== parsedSignature[index] ) {
+            if (parsedSignature[index] !== null && buffer[offset + index] !== parsedSignature[index]) {
                 found = false;
                 break;
             }
         }
 
-        if ( found ) {
+        if (found) {
             return {
                 offset: offset,
                 size: parsedSignature.length,
@@ -57,9 +55,9 @@ const ScanPattern = ( signature, buffer, start = 0, end = 0 ) => {
         }
     }
 
-    return -1;
+    return NaN;
 }
 
 module.exports = {
-    ScanPattern,
+    scanPattern,
 };
