@@ -1,4 +1,4 @@
-const { dumpLuaState, dumpLuaStateDecoder } = require( "./luastate/dumpLuaState" );
+const { dumpLuaState } = require( "./luastate/dumpLuaState" );
 const { dumpLuaONilObject } = require( "./unsorted/dumpLuaONilObject" );
 const { dumpRBXPrint } = require( "./unsorted/dumpRBXPrint" );
 const { dumpTaskScheduler } = require( "./unsorted/dumpTaskScheduler" );
@@ -6,8 +6,6 @@ const { dumpProximityPromptTrigger } = require( "./unsorted/dumpProximityPromptT
 const { dumpTaskDefer } = require( "./unsorted/dumpTaskDefer" );
 const { dumpPushInstance } = require( "./unsorted/dumpPushInstance" );
 const { dumpGlobalEncryption } = require( "./encryption/dumpEncryption" );
-
-const { toHex } = require( "../modules/string" );
 
 /**
  * Общая функция со сбором всех сдампленых смещений

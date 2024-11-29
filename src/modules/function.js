@@ -1,10 +1,3 @@
-const { toHex } = require( "./string" );
-const { shift } = require( "../constants/instructions" );
-
-const isPrologue = (address, buffer) => {
-    return address;
-}
-
 /**
  * Проверка на эпилог функции
  * @param address
