@@ -1,16 +1,9 @@
-const config = require( "../../config/Patterns.json" );
+const config = require( "../../config/patterns.json" );
 
-const { scanPattern } = require( "../../modules/Pattern" );
-const { instructionsSizes, shift, opCode } = require( "../../constants/Instructions" );
-const { toHex } = require( "../../modules/String" );
-const { findEpilogue } = require( "../../modules/Function" );
-
-/**
- *
- * @param buffer
- * @returns {{reference: number, offset: number}}
- * @constructor
- */
+const { scanPattern } = require( "../../modules/pattern" );
+const { instructionsSizes, shift, opCode } = require( "../../constants/instructions" );
+const { toHex } = require( "../../modules/string" );
+const { findEpilogue } = require( "../../modules/function" );
 
 const dumpLuaStateDecoder = (buffer) => {
     const luaStateDecoderMatch = scanPattern( config.LuaStateDecoderPattern, buffer );
@@ -24,40 +17,26 @@ const dumpLuaStateDecoder = (buffer) => {
     const decoderOffset = buffer.readInt32LE( luaStateDecoderMatch.offset + 1 ) + luaStateDecoderMatch.offset + instructionsSizes.CALL + shift;
 
     return {
-        offset: decoderOffset,
-        reference: decoderFieldOffset
+        reference: toHex( decoderFieldOffset ),
+        address: toHex( decoderOffset )
     }
 }
 
-const dumpCallinfoField = (buffer) => {
-    const luaPushError = scanPattern( config.LuaPushError, buffer );
+const dumpCallInfoField = (buffer) => {
+    const luaPushErrorMatch = scanPattern( config.LuaPushError, buffer );
+    let luaPushErrorAddress = buffer.readInt32LE( luaPushErrorMatch.offset + 1 ) + luaPushErrorMatch.offset + instructionsSizes.CALL;
 
-    const callInstructions = [];
-
-    while (buffer.readUInt16LE( luaPushError.offset ) !== 0xCCCC) {
-        if (buffer[luaPushError.offset] === opCode.CALL) {
-            callInstructions.push( luaPushError.offset );
-        }
-
-        if (callInstructions.length >= 4) {
-            const pushErrorCall = callInstructions[2];
-
-            let pushErrorAddress = buffer.readInt32LE( pushErrorCall + 1 ) + luaPushError.offset + shift - instructionsSizes.CALL - 3; // 3 пока что неизвестно
-            console.log( toHex( pushErrorAddress ) );
-
-
-            break;
-        } else {
-            luaPushError.offset++;
-        }
+    while (buffer[luaPushErrorAddress] !== opCode.MOV) {
+        luaPushErrorAddress++
     }
+
+
+    return buffer[luaPushErrorAddress + 2];
 }
 
 const dumpGlobalField = (buffer) => {
     const luaFreeArrayMatch = scanPattern( config.LuaFreeArray, buffer );
     const luaFreeArrayMatchEpilogueAddress = findEpilogue( luaFreeArrayMatch.offset, buffer );
-
-    let global = null;
 
     let jzInstructions = [];
 
@@ -74,8 +53,7 @@ const dumpGlobalField = (buffer) => {
                 const memoryOpCode = buffer[thirdJzInstructionAddress + 1];
 
                 if (memoryOpCode === opCode.MOV || memoryOpCode === opCode.LEA) {
-                    global = buffer[thirdJzInstructionAddress + 3];
-                    break;
+                    return buffer[thirdJzInstructionAddress + 3];
                 } else {
                     thirdJzInstructionAddress++;
                 }
@@ -85,36 +63,42 @@ const dumpGlobalField = (buffer) => {
         luaFreeArrayMatch.offset++;
     }
 
-    return global;
+    return null;
 }
 
 const dumpLuaState = (buffer) => {
     const luaStateGetterMatch = scanPattern( config.LuaStateGetterPattern, buffer );
     const luaStateTopBaseMatch = scanPattern( config.TopBasePattern, buffer );
 
-
-    const LuaStateFieldOffset = buffer.readUInt16LE( luaStateGetterMatch.offset + 3 );
+    const luaStateFieldOffset = buffer.readUInt16LE( luaStateGetterMatch.offset + 3 );
     const luaStateGetterOffset = (
         buffer.readUInt32LE( luaStateGetterMatch.offset + luaStateGetterMatch.size - 4 ) + (
             luaStateGetterMatch.offset + luaStateGetterMatch.size - 5
         ) + instructionsSizes.CALL + shift
     );
 
+    /* Decoder */
+
+    let decoder = dumpLuaStateDecoder( buffer );
+
+    /* Lua state fields */
+
     let top = buffer.readUInt8( luaStateTopBaseMatch.offset + 3 );
     let base = buffer.readUInt8( luaStateTopBaseMatch.offset + 7 );
     let global = dumpGlobalField( buffer );
-    let ci = dumpCallinfoField( buffer );
+    let callInfo = dumpCallInfoField( buffer );
 
     return {
-        offset: luaStateGetterOffset,
-        reference: LuaStateFieldOffset,
+        offset: toHex( luaStateGetterOffset ),
+        reference: toHex( luaStateFieldOffset ),
+        decoder: decoder,
         fields: {
-            top: top,
-            base: base,
-            global: global,
-            ci: ci
+            top: toHex( top ),
+            base: toHex( base ),
+            global: toHex( global ),
+            callInfo: toHex( callInfo )
         }
     }
 }
 
-module.exports = { dumpLuaState, dumpLuaStateDecoder };
+module.exports = { dumpLuaState };

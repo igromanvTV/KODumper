@@ -1,10 +1,10 @@
 const {
     shift,
     instructionsSizes, opCode
-} = require( "../constants/Instructions" );
+} = require( "../constants/instructions" );
 
-const { findSection } = require( "./Section" );
-const { terminate } = require( "./String" );
+const { findSection } = require( "./section" );
+const { terminate } = require( "./string" );
 
 /**
  * Парсинг абсолютного адреса с найденой строки

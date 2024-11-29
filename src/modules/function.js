@@ -1,5 +1,5 @@
-const { toHex } = require( "./String" );
-const { shift } = require( "../constants/Instructions" );
+const { toHex } = require( "./string" );
+const { shift } = require( "../constants/instructions" );
 
 const isPrologue = (address, buffer) => {
     return address;

@@ -4,11 +4,11 @@
  * @returns {string}
  */
 const toHex = (offset) => {
-    if (typeof offset !== "number") {
+    if (typeof offset !== "number" || Number.isNaN( offset )) {
         return "";
     }
 
-    return offset.toString( 16 );
+    return `0x${offset.toString( 16 )}`;
 }
 
 /**
