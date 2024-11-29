@@ -1,15 +1,15 @@
 {
-  "name": "kodumper",
-  "version": "1.0.0",
-  "description": "**KODumper** is roblox static dumper, what can be used to dump roblox offsets faster and automatic",
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
+  "name" : "kodumper",
+  "version" : "1.0.0",
+  "description" : "**KODumper** is roblox static dumper, what can be used to dump roblox offsets faster and automatic",
+  "main" : "index.js",
+  "directories" : {
+    "test" : "tests"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "scripts" : {
+    "test" : "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "keywords" : [],
+  "author" : "",
+  "license" : "ISC"
 }

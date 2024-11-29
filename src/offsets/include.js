@@ -18,68 +18,62 @@ const dump = (buffer) => {
         throw new TypeError( "The provided argument is not a Buffer" );
     }
 
-    const version = "version-8aa36bbf0eb1494a";
-
     let luaState = dumpLuaState( buffer );
 
     return JSON.stringify( {
-        [version]: {
-            address: {
-                luaONilObject: dumpLuaONilObject( buffer ),
-                taskScheduler: dumpTaskScheduler( buffer ),
-                rbxPrint: dumpRBXPrint( buffer ),
-                luaState: luaState.offset,
-                luaStateDecoder: luaState.decoder.address,
-                proximityPromptTrigger: dumpProximityPromptTrigger( buffer ),
-                taskDefer: dumpTaskDefer( buffer ),
-                pushInstance: dumpPushInstance( buffer ),
-            },
-            struct: {
-
-                luaState: {
-                    reference: luaState.reference,
-                    decoderReference: luaState.decoder.reference,
-                    fields: {
-                        top: luaState.fields.top,
-                        base: luaState.fields.base,
-                        global: luaState.fields.global,
-                        callInfo: luaState.fields.callInfo,
-                        // "stack_last":  LuaStateFields.stacklast,
-                        // "stack":  LuaStateFields.stack,
-                    }
-                },
-
-                proto: {
-                    fields: {
-                        // "k":  protoFields.k,
-                        // "code":  protoFields.code,
-                        // "p":  protoFields.p,
-                        // "codeentry":  protoFields.codeentry,
-                        // "sizecode":  protoFields.sizecode,
-                        // "sizep":  protoFields.sizep,
-                        // "sizelocvars":  protoFields.sizelocvars,
-                        // "sizeupvalues":  protoFields.sizeupvalues,
-                        // "sizek":  protoFields.sizek,
-                        // "sizelineinfo":  protoFields.linedefined,
-                        // "linegaplog2":  protoFields.linegaplog2,
-                        // "linedefined":  protoFields.linedefined,
-                        // "bytecodeid":  protoFields.bytecodeid
-                    }
+        address : {
+            luaONilObject : dumpLuaONilObject( buffer ),
+            taskScheduler : dumpTaskScheduler( buffer ),
+            rbxPrint : dumpRBXPrint( buffer ),
+            luaState : luaState.offset,
+            luaStateDecoder : luaState.decoder.address,
+            proximityPromptTrigger : dumpProximityPromptTrigger( buffer ),
+            taskDefer : dumpTaskDefer( buffer ),
+            pushInstance : dumpPushInstance( buffer ),
+        },
+        struct : {
+            luaState : {
+                reference : luaState.reference,
+                decoderReference : luaState.decoder.reference,
+                fields : {
+                    top : luaState.fields.top,
+                    base : luaState.fields.base,
+                    global : luaState.fields.global,
+                    callInfo : luaState.fields.callInfo,
+                    stackLast : luaState.fields.stackLast,
+                    stack : luaState.fields.stack,
                 }
             },
-            encryption: {
-                global: dumpGlobalEncryption( buffer ),
-                // "stacksize": "",
-                // "proto_member_one": "",
-                // "proto_member_two": "",
-                // "debugname": "",
-                // "debugsign": "",
-                // "typeinfo": "",
-                // "hash": "",
-                // "len": ""
-            },
-            shuffle: {}
-        }
+            proto : {
+                fields : {
+                    // "k":  protoFields.k,
+                    // "code":  protoFields.code,
+                    // "p":  protoFields.p,
+                    // "codeentry":  protoFields.codeentry,
+                    // "sizecode":  protoFields.sizecode,
+                    // "sizep":  protoFields.sizep,
+                    // "sizelocvars":  protoFields.sizelocvars,
+                    // "sizeupvalues":  protoFields.sizeupvalues,
+                    // "sizek":  protoFields.sizek,
+                    // "sizelineinfo":  protoFields.linedefined,
+                    // "linegaplog2":  protoFields.linegaplog2,
+                    // "linedefined":  protoFields.linedefined,
+                    // "bytecodeid":  protoFields.bytecodeid
+                }
+            }
+        },
+        encryption : {
+            global : dumpGlobalEncryption( buffer ),
+            // "stacksize": "",
+            // "proto_member_one": "",
+            // "proto_member_two": "",
+            // "debugname": "",
+            // "debugsign": "",
+            // "typeinfo": "",
+            // "hash": "",
+            // "len": ""
+        },
+        shuffle : {}
     } );
 }
 

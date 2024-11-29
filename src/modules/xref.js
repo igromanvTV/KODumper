@@ -30,7 +30,7 @@ const findXrefLinks = (buffer, section, offset) => {
 
             // если абослютное смещение соотвествует искомому смещению - сдвиг
 
-            if (absolute === offset - shift) links.push( sectionOffset + shift );
+            if (absolute === offset - shift) links.push( sectionOffset );
         }
     }
 

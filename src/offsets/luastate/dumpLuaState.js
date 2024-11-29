@@ -4,6 +4,7 @@ const { scanPattern } = require( "../../modules/pattern" );
 const { instructionsSizes, shift, opCode } = require( "../../constants/instructions" );
 const { toHex } = require( "../../modules/string" );
 const { findEpilogue } = require( "../../modules/function" );
+const { scanXref } = require( "../../modules/xref" );
 
 const dumpLuaStateDecoder = (buffer) => {
     const luaStateDecoderMatch = scanPattern( config.LuaStateDecoderPattern, buffer );
@@ -17,12 +18,12 @@ const dumpLuaStateDecoder = (buffer) => {
     const decoderOffset = buffer.readInt32LE( luaStateDecoderMatch.offset + 1 ) + luaStateDecoderMatch.offset + instructionsSizes.CALL + shift;
 
     return {
-        reference: toHex( decoderFieldOffset ),
-        address: toHex( decoderOffset )
+        reference : toHex( decoderFieldOffset ),
+        address : toHex( decoderOffset )
     }
 }
 
-const dumpCallInfoField = (buffer) => {
+const dumpCallInfo = (buffer) => {
     const luaPushErrorMatch = scanPattern( config.LuaPushError, buffer );
     let luaPushErrorAddress = buffer.readInt32LE( luaPushErrorMatch.offset + 1 ) + luaPushErrorMatch.offset + instructionsSizes.CALL;
 
@@ -34,7 +35,7 @@ const dumpCallInfoField = (buffer) => {
     return buffer[luaPushErrorAddress + 2];
 }
 
-const dumpGlobalField = (buffer) => {
+const dumpGlobal = (buffer) => {
     const luaFreeArrayMatch = scanPattern( config.LuaFreeArray, buffer );
     const luaFreeArrayMatchEpilogueAddress = findEpilogue( luaFreeArrayMatch.offset, buffer );
 
@@ -54,13 +55,30 @@ const dumpGlobalField = (buffer) => {
 
                 if (memoryOpCode === opCode.MOV || memoryOpCode === opCode.LEA) {
                     return buffer[thirdJzInstructionAddress + 3];
-                } else {
-                    thirdJzInstructionAddress++;
                 }
+                thirdJzInstructionAddress++;
             }
         }
 
         luaFreeArrayMatch.offset++;
+    }
+
+    return null;
+}
+
+const dumpStack = (buffer) => {
+    const stackStringXrefs = scanXref( ',"stack":[', buffer );
+
+    let dumpStackAddress = stackStringXrefs.length > 0 ? stackStringXrefs[0] : null;
+
+    if (dumpStackAddress === null) {
+        return null;
+    }
+
+    for (let offset = dumpStackAddress; offset < dumpStackAddress + 50; offset++) {
+        if (buffer[offset] === 0x49 && buffer[offset + 1] === 0x8B && buffer[offset + 2] === 0x5D) {
+            return buffer[offset + 3];
+        }
     }
 
     return null;
@@ -85,18 +103,31 @@ const dumpLuaState = (buffer) => {
 
     let top = buffer.readUInt8( luaStateTopBaseMatch.offset + 3 );
     let base = buffer.readUInt8( luaStateTopBaseMatch.offset + 7 );
-    let global = dumpGlobalField( buffer );
-    let callInfo = dumpCallInfoField( buffer );
+    let global = dumpGlobal( buffer );
+    let callInfo = dumpCallInfo( buffer );
+    let stack = dumpStack( buffer );
+    let stackLast = null;
+
+    for (let offset = 8; offset < 0x30; offset += 8) {
+        if (![top, base, global, callInfo, stack].includes( offset )) {
+            stackLast = offset;
+        }
+    }
 
     return {
-        offset: toHex( luaStateGetterOffset ),
-        reference: toHex( luaStateFieldOffset ),
-        decoder: decoder,
-        fields: {
-            top: toHex( top ),
-            base: toHex( base ),
-            global: toHex( global ),
-            callInfo: toHex( callInfo )
+        offset : toHex( luaStateGetterOffset ),
+        reference : toHex( luaStateFieldOffset ),
+        decoder : decoder,
+        fields : {
+            top : toHex( top ),
+            base : toHex( base ),
+            global : toHex( global ),
+            callInfo : toHex( callInfo ),
+            stackLast : toHex( stackLast ),
+            stack : toHex( stack ),
+        },
+        encryption : {
+            global : "none",
         }
     }
 }
