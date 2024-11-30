@@ -19,22 +19,13 @@ const parse = (signature) => {
  */
 
 const scanPattern = (signature, buffer, start = 0, end = 0) => {
-    /* Проверяем является ли buffer действительным
-       и весит ли он больше 80 мб
-     */
-    if (!Buffer.isBuffer( buffer ) || buffer.length < 80 * (
-        1024 * 1024
-    )) {
-        throw new TypeError( "The provided argument is not a Buffer or Buffer size is invalid ( > 80)" );
-    }
-
     if (typeof signature !== 'string') {
         return new TypeError( "The provided argument is not a String" );
     }
 
-    const parsedSignature = parse( signature );
+    let parsedSignature = parse( signature );
 
-    // Простая реализация pattern сканнера по буферу
+    // Простая реализация pattern сканнера
 
     for (let offset = start; offset < (end !== 0 ? end : buffer.length - parsedSignature.length); offset++) {
         let index = 0;

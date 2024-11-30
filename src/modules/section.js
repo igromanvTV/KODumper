@@ -6,14 +6,6 @@
  * @constructor
  */
 const findSection = (name, buffer) => {
-    if (!Buffer.isBuffer( buffer ) || buffer.length < 80 * (1024 * 1024)) {
-        return new Error( "Недейсвительный Buffer" );
-    }
-
-    if (typeof name !== 'string') {
-        return new Error( "Имя секции должно быть строкой" );
-    }
-
     const peHeaderOffset = buffer.readUInt32LE( 0x3C );
     const peSignature = buffer.toString( "utf-8", peHeaderOffset, peHeaderOffset + 4 );
 
@@ -31,9 +23,9 @@ const findSection = (name, buffer) => {
             const sectionVirtualAddress = buffer.readUInt32LE( sectionOffset + 12 );
 
             if (sectionName === name) return {
-                "virtualAddress": sectionVirtualAddress,
-                "pointer": sectionRawDataPointer,
-                "size": sectionSizeOfRawData
+                "virtualAddress" : sectionVirtualAddress,
+                "pointer" : sectionRawDataPointer,
+                "size" : sectionSizeOfRawData
             };
         }
     }

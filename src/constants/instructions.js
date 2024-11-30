@@ -18,7 +18,8 @@ let opCode = {
     CMP : 0x3B,
     XOR : 0x33,
     ADD : 0x83,
-    CALL : 0xE8
+    CALL : 0xE8,
+    RET: 0xC3
 }
 
 const shift = 0xA00;

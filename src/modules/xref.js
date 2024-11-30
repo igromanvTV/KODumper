@@ -50,12 +50,6 @@ const scanXref = (target, buffer) => {
         throw new TypeError( "The provided argument is not a String" );
     }
 
-    if (!Buffer.isBuffer( buffer ) || buffer.length < 80 * (
-        1024 * 1024
-    )) {
-        throw new TypeError( "The provided argument is not a Buffer or Buffer size is invalid ( > 80)" );
-    }
-
     let rdataSection = findSection( ".rdata", buffer );
     let textSection = findSection( ".text", buffer );
     let { pointer : rdataSectionAddress } = rdataSection;
@@ -65,8 +59,8 @@ const scanXref = (target, buffer) => {
 
     for (let offset = rdataSectionAddress; offset < rdataSectionAddress + rdataSectionSize; offset++) {
         // Читаем байт
-        const byte = buffer[offset];
-        // Если байт равняется 0 (конец строки) и строка ра
+        let byte = buffer[offset];
+
         if (byte === 0) {
             if (string === terminate( target )) {
                 // получаем ссылки на функции, в которых используется данная строка
@@ -78,6 +72,7 @@ const scanXref = (target, buffer) => {
             string += String.fromCharCode( byte );
         }
     }
+
     return null;
 }
 

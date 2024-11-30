@@ -1,4 +1,4 @@
-const config = require( "../../config/patterns.json" );
+let config = require( "../../config/patterns.json" );
 
 const { scanPattern } = require( "../../modules/pattern" );
 const { instructionsSizes, shift, opCode } = require( "../../constants/instructions" );
@@ -7,8 +7,8 @@ const { findEpilogue } = require( "../../modules/function" );
 const { scanXref } = require( "../../modules/xref" );
 
 const dumpLuaStateDecoder = (buffer) => {
-    const { offset : decoderAddress } = scanPattern( config.LuaStateDecoderPattern, buffer );
-    const decoderFieldAddress = buffer.readUInt16LE( decoderAddress + 3 );
+    let { offset : decoderAddress } = scanPattern( config.LuaStateDecoderPattern, buffer );
+    let decoderFieldAddress = buffer.readUInt16LE( decoderAddress + 3 );
 
     if (decoderAddress === null || decoderFieldAddress === null) {
         return 0;
@@ -16,7 +16,7 @@ const dumpLuaStateDecoder = (buffer) => {
 
     let nextCallFunction = buffer.indexOf( opCode.CALL, decoderAddress );
 
-    const decoderOffset = buffer.readInt32LE( nextCallFunction + 1 ) + nextCallFunction + instructionsSizes.CALL + shift;
+    let decoderOffset = buffer.readInt32LE( nextCallFunction + 1 ) + nextCallFunction + instructionsSizes.CALL + shift;
 
     return {
         decoderReference : toHex( decoderFieldAddress ),
@@ -70,7 +70,7 @@ const dumpGlobal = (buffer) => {
 }
 
 const dumpStack = (buffer) => {
-    const [ stackAddress ] = scanXref( ',"stack":[', buffer );
+    let [ stackAddress ] = scanXref( ',"stack":[', buffer );
 
     if (stackAddress === null) {
         return 0;

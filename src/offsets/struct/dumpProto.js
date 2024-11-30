@@ -11,7 +11,7 @@ const dumpSizeProto = (buffer) => {
 }
 
 const dumpProto = (buffer) => {
-    const sizeProto = dumpSizeProto( buffer );
+    let sizeProto = dumpSizeProto( buffer );
 
     return {
         sizep : toHex( sizeProto ),
