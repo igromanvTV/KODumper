@@ -8,7 +8,7 @@ const toHex = (offset) => {
         return "";
     }
 
-    return `0x${offset.toString( 16 )}`;
+    return `0x${offset.toString( 16 ).toUpperCase()}`;
 }
 
 /**

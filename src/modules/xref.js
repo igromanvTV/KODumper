@@ -56,14 +56,14 @@ const scanXref = (target, buffer) => {
         throw new TypeError( "The provided argument is not a Buffer or Buffer size is invalid ( > 80)" );
     }
 
-    const rdataSection = findSection( ".rdata", buffer );
-    const textSection = findSection( ".text", buffer );
-    const rdataSectionOffset = rdataSection.pointer;
-    const rdataSectionSize = rdataSection.size;
+    let rdataSection = findSection( ".rdata", buffer );
+    let textSection = findSection( ".text", buffer );
+    let { pointer : rdataSectionAddress } = rdataSection;
+    let { size : rdataSectionSize } = rdataSection;
 
     let string = "";
 
-    for (let offset = rdataSectionOffset; offset < rdataSectionOffset + rdataSectionSize; offset++) {
+    for (let offset = rdataSectionAddress; offset < rdataSectionAddress + rdataSectionSize; offset++) {
         // Читаем байт
         const byte = buffer[offset];
         // Если байт равняется 0 (конец строки) и строка ра

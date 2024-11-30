@@ -49,13 +49,13 @@ const scanPattern = (signature, buffer, start = 0, end = 0) => {
 
         if (found) {
             return {
-                offset: offset,
-                size: parsedSignature.length,
+                offset : offset,
+                size : parsedSignature.length,
             };
         }
     }
 
-    return NaN;
+    return null;
 }
 
 module.exports = {

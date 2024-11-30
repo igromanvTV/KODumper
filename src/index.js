@@ -6,4 +6,10 @@ let binary = filesystem.readFileSync( "decrypted-actual.bin", "hex" ); // 8aa36b
 
 let buffer = new Buffer.from( binary, "hex" );
 
+const startTime = Date.now();
+
 filesystem.writeFileSync( "output.json", dump( buffer ) );
+
+const endTime = new Date(Date.now() - startTime).getSeconds();
+
+console.log(`Dump done. Work time ${endTime} seconds`);

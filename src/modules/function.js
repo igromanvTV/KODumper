@@ -5,11 +5,7 @@
  * @returns {number}
  */
 const findEpilogue = (address, buffer) => {
-    while (buffer[address] !== 0xC3) {
-        address++;
-    }
-
-    return address;
+    return buffer.indexOf(0xC3, address);
 }
 
 /**

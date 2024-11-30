@@ -1,11 +1,12 @@
-const { dumpLuaState } = require( "./luastate/dumpLuaState" );
 const { dumpLuaONilObject } = require( "./unsorted/dumpLuaONilObject" );
 const { dumpRBXPrint } = require( "./unsorted/dumpRBXPrint" );
 const { dumpTaskScheduler } = require( "./unsorted/dumpTaskScheduler" );
 const { dumpProximityPromptTrigger } = require( "./unsorted/dumpProximityPromptTrigger" );
 const { dumpTaskDefer } = require( "./unsorted/dumpTaskDefer" );
 const { dumpPushInstance } = require( "./unsorted/dumpPushInstance" );
-const { dumpGlobalEncryption } = require( "./encryption/dumpEncryption" );
+
+const { dumpLuaState } = require( "./struct/dumpLuaState" );
+const { dumpProto } = require( "./struct/dumpProto" );
 
 /**
  * Общая функция со сбором всех сдампленых смещений
@@ -19,22 +20,23 @@ const dump = (buffer) => {
     }
 
     let luaState = dumpLuaState( buffer );
+    let proto = dumpProto( buffer );
 
     return JSON.stringify( {
         address : {
             luaONilObject : dumpLuaONilObject( buffer ),
             taskScheduler : dumpTaskScheduler( buffer ),
             rbxPrint : dumpRBXPrint( buffer ),
-            luaState : luaState.offset,
-            luaStateDecoder : luaState.decoder.address,
+            luaState : luaState.luaStateAddress,
+            luaStateDecoder : luaState.decoder.decoderAddress,
             proximityPromptTrigger : dumpProximityPromptTrigger( buffer ),
             taskDefer : dumpTaskDefer( buffer ),
             pushInstance : dumpPushInstance( buffer ),
         },
         struct : {
             luaState : {
-                reference : luaState.reference,
-                decoderReference : luaState.decoder.reference,
+                luaStateReference : luaState.luaStateReference,
+                decoderReference : luaState.decoder.decoderReference,
                 fields : {
                     top : luaState.fields.top,
                     base : luaState.fields.base,
@@ -50,8 +52,9 @@ const dump = (buffer) => {
                     // "code":  protoFields.code,
                     // "p":  protoFields.p,
                     // "codeentry":  protoFields.codeentry,
+
                     // "sizecode":  protoFields.sizecode,
-                    // "sizep":  protoFields.sizep,
+                    sizep : proto.sizep,
                     // "sizelocvars":  protoFields.sizelocvars,
                     // "sizeupvalues":  protoFields.sizeupvalues,
                     // "sizek":  protoFields.sizek,
@@ -63,7 +66,7 @@ const dump = (buffer) => {
             }
         },
         encryption : {
-            global : dumpGlobalEncryption( buffer ),
+            //global : dumpGlobalEncryption( buffer ),
             // "stacksize": "",
             // "proto_member_one": "",
             // "proto_member_two": "",
