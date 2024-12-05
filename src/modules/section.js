@@ -1,3 +1,4 @@
+const { toHex } = require( "./string" );
 /**
  *
  * @param name
@@ -14,6 +15,7 @@ const findSection = (name, buffer) => {
         const peHeaderSize = buffer.readUInt16LE( peHeaderOffset + 20 );
 
         const sectionTableOffset = peHeaderOffset + 24 + peHeaderSize;
+        const sectionAlignment = buffer.readUInt32LE( sectionTableOffset + 0x28 );
 
         for (let index = 0; index < peNumberOfSections; index++) {
             const sectionOffset = sectionTableOffset + (index * 40);
@@ -21,17 +23,22 @@ const findSection = (name, buffer) => {
             const sectionRawDataPointer = buffer.readUInt32LE( sectionOffset + 20 );
             const sectionSizeOfRawData = buffer.readUInt32LE( sectionOffset + 16 );
             const sectionVirtualAddress = buffer.readUInt32LE( sectionOffset + 12 );
+            const sectionFileAlignment = buffer.readUInt32LE( sectionTableOffset + 0x38 );
 
-            if (sectionName === name) return {
-                "virtualAddress" : sectionVirtualAddress,
-                "pointer" : sectionRawDataPointer,
-                "size" : sectionSizeOfRawData
-            };
+            if (sectionName === name) {
+                return {
+                    "virtualAddress" : sectionVirtualAddress,
+                    "pointer" : sectionRawDataPointer,
+                    "size" : sectionSizeOfRawData,
+                    "fileAlignment" : sectionFileAlignment,
+                };
+            }
         }
     }
 
     return null;
 }
+
 
 module.exports = {
     findSection

@@ -1,36 +1,37 @@
 const {
-    shift,
+    fileAlignment,
     instructionsSizes, opCode
 } = require( "../constants/instructions" );
 
 const { findSection } = require( "./section" );
-const { terminate } = require( "./string" );
+const { terminate, toHex } = require( "./string" );
 
 /**
  * Парсинг абсолютного адреса с найденой строки
  * @param buffer
- * @param section
- * @param offset
+ * @param textSection
+ * @param rdataSection
+ * @param stringOffset
  * @returns {*[]}
  * @constructor
  */
-const findXrefLinks = (buffer, section, offset) => {
-    const links = [];
 
-    for (let sectionOffset = section.pointer; sectionOffset <= section.pointer + section.size; sectionOffset++) {
-        const byte = buffer.readUInt8( sectionOffset );
+const findReferences = (buffer, textSection, rdataSection, stringOffset) => {
+    let links = [];
 
-        if (byte === opCode.REX) // LEA offset
-        {
-            // рассчитывание смещения в памяти
-            const relative = buffer.readInt32LE( sectionOffset + 3 );
-            const absolute = (
-                relative + sectionOffset + instructionsSizes.LEA
-            );
+    for (let sectionOffset = textSection.pointer; sectionOffset < textSection.pointer + textSection.size; sectionOffset++) {
+        let byte = buffer.readUInt8( sectionOffset );
+        let nextByte = buffer.readUInt8( sectionOffset + 1 );
 
-            // если абослютное смещение соотвествует искомому смещению - сдвиг
+        if (byte === opCode.rex && nextByte === opCode.lea) {
+            let relativeAddress = buffer.readInt32LE( sectionOffset + 3 );
+            let absoluteAddress = relativeAddress + sectionOffset + instructionsSizes.lea + fileAlignment;
 
-            if (absolute === offset - shift) links.push( sectionOffset );
+            let rvaStringAddress = stringOffset - rdataSection.pointer + rdataSection.virtualAddress
+
+            if (absoluteAddress === rvaStringAddress) {
+                links.push( sectionOffset );
+            }
         }
     }
 
@@ -52,19 +53,15 @@ const scanXref = (target, buffer) => {
 
     let rdataSection = findSection( ".rdata", buffer );
     let textSection = findSection( ".text", buffer );
-    let { pointer : rdataSectionAddress } = rdataSection;
-    let { size : rdataSectionSize } = rdataSection;
 
     let string = "";
-
-    for (let offset = rdataSectionAddress; offset < rdataSectionAddress + rdataSectionSize; offset++) {
+    for (let offset = rdataSection.pointer; offset < rdataSection.pointer + rdataSection.size; offset++) {
         // Читаем байт
         let byte = buffer[offset];
 
         if (byte === 0) {
             if (string === terminate( target )) {
-                // получаем ссылки на функции, в которых используется данная строка
-                return findXrefLinks( buffer, textSection, offset - target.length + 0x1800 );
+                return findReferences( buffer, textSection, rdataSection, offset - target.length );
             }
             string = '';
         } else {
