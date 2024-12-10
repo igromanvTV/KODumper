@@ -4,6 +4,7 @@ const config = require( "../../config/patterns.json" );
 const { findEpilogue } = require( "../../modules/function" );
 const { opCode } = require( "../../constants/instructions" );
 const { toHex } = require( "../../modules/string" );
+const { shuffle } = require( "../../modules/shuffle" );
 
 const dumpProto = (buffer) => {
     let { address : freeArrayAddress } = scanPattern( config.LuaFreeArray, buffer );
@@ -85,6 +86,8 @@ const dumpProto = (buffer) => {
         }
     }
 
+    const shuffle4 = shuffle( [ k, code, p, codeentry ], 8 );
+
     return {
         offsets : {
             k : toHex( k ),
@@ -101,7 +104,9 @@ const dumpProto = (buffer) => {
             bytecodeid : toHex( bytecodeid ),
             sizetypeinfo : toHex( sizetypeinfo ),
         },
-        shuffles : {}
+        shuffles : {
+            shuffle4 : shuffle4,
+        }
     }
 }
 
