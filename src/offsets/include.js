@@ -74,7 +74,9 @@ const dump = (buffer) => {
                 }
             }
         },
-        encryption : {},
+        encryption : {
+            global: luaState.encryption.global
+        },
         shuffle : {
             shuffle3 : globalState.shuffles.shuffle3,
             shuffle4 : proto.shuffles.shuffle4,
