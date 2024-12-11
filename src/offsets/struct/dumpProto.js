@@ -1,47 +1,54 @@
 const { scanXref } = require( "../../modules/xref" );
 const { scanPattern } = require( "../../modules/pattern" );
-const config = require( "../../config/patterns.json" );
 const { findEpilogue } = require( "../../modules/function" );
 const { opCode } = require( "../../constants/instructions" );
 const { toHex } = require( "../../modules/string" );
 const { shuffle } = require( "../../modules/shuffle" );
 
-const dumpProto = (buffer) => {
-    let { address : freeArrayAddress } = scanPattern( config.LuaFreeArray, buffer );
+const config = require( "../../config/patterns.json" );
+
+const dumpLineDefined = (buffer) => {
+    let dumpThread = scanXref( ':%d:%s\"', buffer )[0];
+
+    for (let address = dumpThread - 30; address < dumpThread; address++) {
+        if (buffer[address] === opCode.rexr && buffer[address + 1] === opCode.mov) {
+            let offset = buffer[address + 3];
+
+            if (offset >= 0x88) {
+                return offset;
+            }
+        }
+    }
+}
+
+const dumpBytecodeId = (buffer) => {
     let { address : vmLoadAddress } = scanPattern( config.LuaVMLoad, buffer );
+
     let {
         address : newProtoAddress,
         size : newProtoSize
     } = scanPattern( "89 ? ? ? ? ? 0F 83 ? ? ? ? 48 ? ? E8 ? ? ? ?", buffer, vmLoadAddress ); // this pattern from luavmload function (first new proto function)
 
-    if (!freeArrayAddress || !vmLoadAddress || !newProtoAddress) {
-        throw new Error( "Failed to scan some offsets" );
+    if (!vmLoadAddress || !newProtoAddress) {
+        throw new Error( "Cannot process bytecode id dump" );
     }
-
-    let bytecodeid = 0;
 
     for (let address = newProtoAddress; address < newProtoAddress + newProtoSize + 40; address++) {
         if (buffer[address] === opCode.movrm64 && buffer[address + 1] !== opCode.movrm64) {
             let offset = buffer[address + 2];
 
             if (offset >= 0x88) {
-                bytecodeid = offset;
+                return offset;
             }
         }
     }
+}
 
-    let linedefined = scanXref( ':%d:%s\"', buffer )[0];
+const dumpProto = (buffer) => {
+    let { address : freeArrayAddress } = scanPattern( config.LuaFreeArray, buffer );
 
-    let linedefinedOffset = 0;
-
-    for (let address = linedefined - 30; address < linedefined; address++) {
-        if (buffer[address] === opCode.rexr && buffer[address + 1] === opCode.mov) {
-            let offset = buffer[address + 3];
-
-            if (offset >= 0x88) {
-                linedefinedOffset = offset;
-            }
-        }
+    if (!freeArrayAddress) {
+        throw new Error( "Cannot process proto dump" );
     }
 
     let freeArrayEpilogue = findEpilogue( freeArrayAddress, buffer );
@@ -51,22 +58,22 @@ const dumpProto = (buffer) => {
     let leaValueOffsets = [];
 
     for (let address = freeArrayAddress; address < freeArrayEpilogue; address++) {
-        let firstByte = buffer[address];
-        let secondByte = buffer[address + 1];
-        let thirdByte = buffer[address + 3];
+        let prefix = buffer[address];
+        let op = buffer[address + 1];
+        let value = buffer[address + 3];
 
-        if ([ opCode.rexrx, opCode.rex ].includes( firstByte )) {
-            if (secondByte === opCode.movsxd) {
-                movsxdValueOffsets.push( thirdByte );
+        if ([ opCode.rexrx, opCode.rex ].includes( prefix )) {
+            if (op === opCode.movsxd) {
+                movsxdValueOffsets.push( value );
             }
         }
 
-        if (firstByte === opCode.rex && [ opCode.lea, opCode.subAdd ].includes( secondByte )) {
-            leaValueOffsets.push( thirdByte );
+        if (prefix === opCode.rex && [ opCode.lea, opCode.subAdd ].includes( op )) {
+            leaValueOffsets.push( value );
         }
     }
 
-    let [ sizecode, sizep, sizek, , sizelocvars, sizeupvalues, , sizetypeinfo ] = movsxdValueOffsets;
+    let [ sizecode, sizep, sizek, sizelineinfo, sizelocvars, sizeupvalues ] = movsxdValueOffsets;
 
     let [ , code, p, k ] = leaValueOffsets
 
@@ -78,18 +85,22 @@ const dumpProto = (buffer) => {
         }
     }
 
-    let linegaplog2 = 0;
+    let linedefined = dumpLineDefined( buffer );
+    let bytecodeid = dumpBytecodeId( buffer );
 
-    for (let offset = 0x88; offset <= 0xA8; offset += 0x4) {
-        if (![ sizecode, sizep, sizelocvars, sizeupvalues, sizek, bytecodeid, sizetypeinfo ].includes( offset )) {
+    let linegaplog2 = 0;
+    for (let offset = 0x88; offset < 0xA8; offset += 0x4) {
+        if (![ sizecode, sizep, sizelocvars, sizeupvalues, sizek, sizelineinfo, linedefined, bytecodeid ].includes( offset )) {
             linegaplog2 = offset;
         }
     }
 
-    const shuffle4 = shuffle( [ k, code, p, codeentry ], 8 );
+
+    let shuffle4 = shuffle( [ k, code, p, codeentry ], 8, 8 );
+    let shuffle9 = shuffle( [ sizecode, sizep, sizelocvars, sizeupvalues, sizek, sizelineinfo, linegaplog2, linedefined, bytecodeid ], 0x88, 4 );
 
     return {
-        offsets : {
+        fields : {
             k : toHex( k ),
             p : toHex( p ),
             code : toHex( code ),
@@ -99,13 +110,14 @@ const dumpProto = (buffer) => {
             sizelocvars : toHex( sizelocvars ),
             sizeupvalues : toHex( sizeupvalues ),
             sizek : toHex( sizek ),
+            sizelineinfo : toHex( sizelineinfo ),
             linegaplog2 : toHex( linegaplog2 ),
-            linedefined : toHex( linedefinedOffset ),
+            linedefined : toHex( linedefined ),
             bytecodeid : toHex( bytecodeid ),
-            sizetypeinfo : toHex( sizetypeinfo ),
         },
         shuffles : {
             shuffle4 : shuffle4,
+            shuffle9 : shuffle9,
         }
     }
 }

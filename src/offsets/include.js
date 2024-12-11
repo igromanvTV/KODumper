@@ -7,6 +7,7 @@ const { dumpPushInstance } = require( "./unsorted/dumpPushInstance" );
 
 const { dumpLuaState } = require( "./struct/dumpLuaState" );
 const { dumpProto } = require( "./struct/dumpProto" );
+const { dumpGlobalState } = require( "./struct/dumpGlobalState" );
 
 /**
  * Общая функция со сбором всех сдампленых смещений
@@ -21,6 +22,7 @@ const dump = (buffer) => {
 
     let luaState = dumpLuaState( buffer );
     let proto = dumpProto( buffer );
+    let globalState = dumpGlobalState( buffer );
 
     return JSON.stringify( {
         address : {
@@ -34,6 +36,13 @@ const dump = (buffer) => {
             pushInstance : dumpPushInstance( buffer ),
         },
         struct : {
+            globalState : {
+                fields : {
+                    gray : globalState.fields.gray,
+                    grayagain : globalState.fields.grayagain,
+                    weak : globalState.fields.weak,
+                }
+            },
             luaState : {
                 luaStateReference : luaState.luaStateReference,
                 decoderReference : luaState.decoder.decoderReference,
@@ -48,35 +57,30 @@ const dump = (buffer) => {
             },
             proto : {
                 fields : {
-                    // "k":  protoFields.k,
-                    // "code":  protoFields.code,
-                    // "p":  protoFields.p,
-                    // "codeentry":  protoFields.codeentry,
-
-                    // "sizecode":  protoFields.sizecode,
-                    sizep : proto.sizep,
-                    // "sizelocvars":  protoFields.sizelocvars,
-                    // "sizeupvalues":  protoFields.sizeupvalues,
-                    // "sizek":  protoFields.sizek,
-                    // "sizelineinfo":  protoFields.linedefined,
-                    // "linegaplog2":  protoFields.linegaplog2,
-                    // "linedefined":  protoFields.linedefined,
-                    // "bytecodeid":  protoFields.bytecodeid
+                    k : proto.fields.k,
+                    p : proto.fields.p,
+                    code : proto.fields.code,
+                    codeentry : proto.fields.codeentry,
+                    sizecode : proto.fields.sizecode,
+                    sizep : proto.fields.sizep,
+                    sizelocvars : proto.fields.sizelocvars,
+                    sizeupvalues : proto.fields.sizeupvalues,
+                    sizek : proto.fields.sizek,
+                    sizelineinfo : proto.fields.sizelineinfo,
+                    linegaplog2 : proto.fields.linegaplog2,
+                    linedefined : proto.fields.linedefined,
+                    bytecodeid : proto.fields.bytecodeid,
+                    sizetypeinfo : proto.fields.sizetypeinfo,
                 }
             }
         },
-        encryption : {
-            //global : dumpGlobalEncryption( buffer ),
-            // "stacksize": "",
-            // "proto_member_one": "",
-            // "proto_member_two": "",
-            // "debugname": "",
-            // "debugsign": "",
-            // "typeinfo": "",
-            // "hash": "",
-            // "len": ""
-        },
-        shuffle : {}
+        encryption : {},
+        shuffle : {
+            shuffle3 : globalState.shuffles.shuffle3,
+            shuffle4 : proto.shuffles.shuffle4,
+            shuffle6 : luaState.shuffles.shuffle6,
+            shuffle9 : proto.shuffles.shuffle9,
+        }
     } );
 }
 
