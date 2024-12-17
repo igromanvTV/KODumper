@@ -8,15 +8,15 @@ const dumpGlobalState = (buffer) => {
     let { address : LuaFullGCAddress } = scanPattern( "48 8B 86 ? ? ? ? 48 89 86 ? ? ? ? 4C 89 76 ? 4C 89 76 ? 4C 89 76 ?", buffer ); // pattern on a piece of code in luaC_fullgc
 
     if (!LuaFullGCAddress) {
-        throw Error( "Cannot process global state dump" );
+        return null;
     }
 
     let luaGcOffsets = [];
 
-    for (let offset = LuaFullGCAddress; offset < LuaFullGCAddress + 30; offset++) {
-        let prefix = buffer[offset];
-        let opcode = buffer[offset + 1];
-        let value = buffer[offset + 3];
+    for (let address = LuaFullGCAddress; address < LuaFullGCAddress + 30; address++) {
+        let prefix = buffer[address];
+        let opcode = buffer[address + 1];
+        let value = buffer[address + 3];
 
         if (prefix === opCode.rexrx && opcode === opCode.movrm64) {
 

@@ -8,9 +8,15 @@ const { shuffle } = require( "../../modules/shuffle" );
 const config = require( "../../config/patterns.json" );
 
 const dumpLineDefined = (buffer) => {
-    let dumpThread = scanXref( ':%d:%s\"', buffer )[0];
+    let dumpThread = scanXref( ':%d:%s\"', buffer );
 
-    for (let address = dumpThread - 30; address < dumpThread; address++) {
+    if (dumpThread.length === 0) {
+        return null;
+    }
+
+    let dumpThreadFirstAddress = dumpThread[0];
+
+    for (let address = dumpThreadFirstAddress - 30; address < dumpThreadFirstAddress; address++) {
         if (buffer[address] === opCode.rexr && buffer[address + 1] === opCode.mov) {
             let offset = buffer[address + 3];
 
@@ -30,7 +36,7 @@ const dumpBytecodeId = (buffer) => {
     } = scanPattern( "89 ? ? ? ? ? 0F 83 ? ? ? ? 48 ? ? E8 ? ? ? ?", buffer, vmLoadAddress ); // this pattern from luavmload function (first new proto function)
 
     if (!vmLoadAddress || !newProtoAddress) {
-        throw new Error( "Cannot process bytecode id dump" );
+        return null;
     }
 
     for (let address = newProtoAddress; address < newProtoAddress + newProtoSize + 40; address++) {
@@ -42,13 +48,15 @@ const dumpBytecodeId = (buffer) => {
             }
         }
     }
+
+    return null;
 }
 
 const dumpProto = (buffer) => {
     let { address : freeArrayAddress } = scanPattern( config.LuaFreeArray, buffer );
 
     if (!freeArrayAddress) {
-        throw new Error( "Cannot process proto dump" );
+        return null;
     }
 
     let freeArrayEpilogue = findEpilogue( freeArrayAddress, buffer );
@@ -94,7 +102,6 @@ const dumpProto = (buffer) => {
             linegaplog2 = offset;
         }
     }
-
 
     let shuffle4 = shuffle( [ k, code, p, codeentry ], 8, 8 );
     let shuffle9 = shuffle( [ sizecode, sizep, sizelocvars, sizeupvalues, sizek, sizelineinfo, linegaplog2, linedefined, bytecodeid ], 0x88, 4 );
