@@ -1,9 +1,9 @@
 const { scanPattern } = require( "../../modules/pattern" );
 const config = require( "../../config/patterns.json" );
-const { shift } = require( "../../constants/instructions" );
+const { fileAlignment } = require( "../../constants/instructions" );
 const { toHex } = require( "../../modules/string" );
 const dumpPushInstance = (buffer) => {
-    return toHex( scanPattern( config.PushInstancePattern, buffer ).offset + shift );
+    return toHex( scanPattern( config.PushInstancePattern, buffer ).address + fileAlignment );
 }
 
 module.exports.dumpPushInstance = dumpPushInstance;

@@ -1,9 +1,9 @@
 const { scanPattern } = require( "../../modules/pattern" );
 const config = require( '../../config/patterns.json' );
-const { shift } = require( "../../constants/instructions" );
+const { fileAlignment } = require( "../../constants/instructions" );
 const { toHex } = require( "../../modules/string" );
-const dumpTaskDefer = ( buffer ) => {
-    return toHex(scanPattern( config.TaskDeferPattern, buffer ).offset + shift);
+const dumpTaskDefer = (buffer) => {
+    return toHex( scanPattern( config.TaskDeferPattern, buffer ).address + fileAlignment );
 }
 
 module.exports.dumpTaskDefer = dumpTaskDefer;

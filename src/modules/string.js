@@ -1,14 +1,14 @@
 /**
  * Получение шестнадцатеричного числа с десятичного числа
- * @param offset
+ * @param address
  * @returns {string}
  */
-const toHex = (offset) => {
-    if (typeof offset !== "number" || Number.isNaN( offset )) {
+const toHex = (address) => {
+    if (typeof address !== "number" || Number.isNaN( address )) {
         return "";
     }
 
-    return `0x${offset.toString( 16 ).toUpperCase()}`;
+    return `0x${address.toString( 16 ).toUpperCase()}`;
 }
 
 /**
@@ -22,19 +22,19 @@ const terminate = (string) => {
 
 /**
  * Чтение строки из памяти
- * @param offset
+ * @param address
  * @param buffer
  * @returns {string}
  */
-const read = (offset, buffer) => {
-    let byte = buffer[offset];
+const read = (address, buffer) => {
+    let byte = buffer[address];
 
     let string = "";
 
     while (byte !== 0) {
         string += String.fromCharCode( byte );
-        offset++;
-        byte = buffer[offset];
+        address++;
+        byte = buffer[address];
     }
 
     return string;

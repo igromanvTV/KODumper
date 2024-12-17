@@ -1,13 +1,4 @@
-/**
- * Парсинг сигнатуры с строчного вида в массив из байтов
- * @param signature
- * @returns {(null|number)[]}
- * @constructor
- */
-
-const parse = (signature) => {
-    return signature.split( " " ).map( byte => byte === '?' ? null : parseInt( byte, 16 ) );
-}
+const { findSection } = require( "./section" );
 
 /**
  * Сканирование сигнатуры из памяти
@@ -15,24 +6,21 @@ const parse = (signature) => {
  * @param buffer
  * @param start
  * @param end
- * @returns {number|{offset: number, size: number}|TypeError}
+ * @returns {{address: number, size: number}|{address: null, size: number}|TypeError}
  */
 
 const scanPattern = (signature, buffer, start = 0, end = 0) => {
-    if (typeof signature !== 'string') {
-        return new TypeError( "The provided argument is not a String" );
-    }
+    let parsedSignature = signature.split( " " ).map( byte => byte === '?' ? null : parseInt( byte, 16 ) );
 
-    let parsedSignature = parse( signature );
+    let textSection = findSection( ".text", buffer );
 
     // Простая реализация pattern сканнера
 
-    for (let offset = start; offset < (end !== 0 ? end : buffer.length - parsedSignature.length); offset++) {
-        let index = 0;
+    for (let address = textSection.pointer; address < (end !== 0 ? end : textSection.pointer + textSection.size - parsedSignature.length); address++) {
         let found = true;
 
-        for (index = 0; index < parsedSignature.length; index++) {
-            if (parsedSignature[index] !== null && buffer[offset + index] !== parsedSignature[index]) {
+        for (let index = 0; index < parsedSignature.length; index++) {
+            if (parsedSignature[index] !== null && buffer[address + index] !== parsedSignature[index]) {
                 found = false;
                 break;
             }
@@ -40,13 +28,16 @@ const scanPattern = (signature, buffer, start = 0, end = 0) => {
 
         if (found) {
             return {
-                offset : offset,
+                address : address,
                 size : parsedSignature.length,
             };
         }
     }
 
-    return null;
+    return {
+        address : null,
+        size : parsedSignature.length
+    };
 }
 
 module.exports = {

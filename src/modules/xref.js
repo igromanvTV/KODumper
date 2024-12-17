@@ -4,7 +4,7 @@ const {
 } = require( "../constants/instructions" );
 
 const { findSection } = require( "./section" );
-const { terminate, toHex } = require( "./string" );
+const { terminate } = require( "./string" );
 
 /**
  * Парсинг абсолютного адреса с найденой строки
@@ -19,7 +19,8 @@ const { terminate, toHex } = require( "./string" );
 const findReferences = (buffer, textSection, rdataSection, stringOffset) => {
     let links = [];
 
-    for (let sectionOffset = textSection.pointer; sectionOffset < textSection.pointer + textSection.size; sectionOffset++) {
+    for (let sectionOffset = textSection.pointer; sectionOffset < textSection.pointer +
+    textSection.size; sectionOffset++) {
         let byte = buffer.readUInt8( sectionOffset );
         let nextByte = buffer.readUInt8( sectionOffset + 1 );
 
@@ -47,25 +48,20 @@ const findReferences = (buffer, textSection, rdataSection, stringOffset) => {
  */
 
 const scanXref = (target, buffer) => {
-    if (typeof target !== 'string') {
-        throw new TypeError( "The provided argument is not a String" );
-    }
-
     let rdataSection = findSection( ".rdata", buffer );
     let textSection = findSection( ".text", buffer );
 
     let string = "";
-    for (let offset = rdataSection.pointer; offset < rdataSection.pointer + rdataSection.size; offset++) {
-        // Читаем байт
-        let byte = buffer[offset];
 
-        if (byte === 0) {
+    for (let address = rdataSection.pointer; address < rdataSection.pointer + rdataSection.size; address++) {
+        let byte = buffer[address];
+
+        if (byte === 0) { // null terminator
             if (string === terminate( target )) {
-                return findReferences( buffer, textSection, rdataSection, offset - target.length );
+                return findReferences( buffer, textSection, rdataSection, address - target.length );
             }
-            string = '';
+            string = ""; // clear string (if no results)
         } else {
-            // Переводим байт в char код (символ)
             string += String.fromCharCode( byte );
         }
     }
