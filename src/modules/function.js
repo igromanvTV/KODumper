@@ -6,7 +6,7 @@ const { opCode } = require( "../constants/instructions" );
  * @returns {number}
  */
 const findEpilogue = (address, buffer) => {
-    return buffer.indexOf( opCode.RET, address );
+    return buffer.indexOf( opCode.ret, address );
 }
 
 module.exports = {
