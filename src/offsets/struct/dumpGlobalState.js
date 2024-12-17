@@ -1,11 +1,12 @@
 const { scanPattern } = require( "../../modules/pattern" );
-
 const { opCode } = require( "../../constants/instructions" );
 const { toHex } = require( "../../modules/string" );
 const { shuffle } = require( "../../modules/shuffle" );
 
+const config = require("../../config/patterns.json");
+
 const dumpGlobalState = (buffer) => {
-    let { address : LuaFullGCAddress } = scanPattern( "48 8B 86 ? ? ? ? 48 89 86 ? ? ? ? 4C 89 76 ? 4C 89 76 ? 4C 89 76 ?", buffer ); // pattern on a piece of code in luaC_fullgc
+    let { address : LuaFullGCAddress } = scanPattern( config.LuaFullGc, buffer );
 
     if (!LuaFullGCAddress) {
         return null;
