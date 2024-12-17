@@ -5,6 +5,7 @@ const { dumpProximityPromptTrigger } = require( "./unsorted/dumpProximityPromptT
 const { dumpTaskDefer } = require( "./unsorted/dumpTaskDefer" );
 const { dumpPushInstance } = require( "./unsorted/dumpPushInstance" );
 const { dumpDummyNode } = require( "./unsorted/dumpDummyNode" );
+const { dumpLuaVmLoad } = require( "./unsorted/dumpLuaVmLoad" );
 
 const { dumpLuaState } = require( "./struct/dumpLuaState" );
 const { dumpProto } = require( "./struct/dumpProto" );
@@ -18,6 +19,7 @@ module.exports = {
     dumpTaskDefer,
     dumpPushInstance,
     dumpDummyNode,
+    dumpLuaVmLoad,
 
     dumpLuaState,
     dumpProto,

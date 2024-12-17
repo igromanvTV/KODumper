@@ -10,7 +10,8 @@ const {
     dumpGlobalState,
     dumpLuaState,
     dumpLuaONilObject,
-    dumpDummyNode
+    dumpDummyNode,
+    dumpLuaVmLoad
 } = require( "./offsets/include" );
 
 const dump = () => {
@@ -25,6 +26,7 @@ const dump = () => {
     let dumpData = JSON.stringify( {
         address : {
             luaONilObject : dumpLuaONilObject( buffer ),
+            luaVmLoad : dumpLuaVmLoad( buffer ),
             taskScheduler : dumpTaskScheduler( buffer ),
             rbxPrint : dumpRBXPrint( buffer ),
             luaState : luaState.luaStateAddress,
