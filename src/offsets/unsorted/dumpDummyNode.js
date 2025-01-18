@@ -12,6 +12,7 @@ const dumpDummyNode = (buffer) => {
     }
 
     for (let address = dumpTableAddress; address < dumpTableAddress + 30; address++) {
+        address = address + 2;
         let firstByte = buffer[address];
         let secondByte = buffer[address + 1];
 
