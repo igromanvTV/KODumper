@@ -5,12 +5,17 @@ const {
     dumpTaskDefer,
     dumpProximityPromptTrigger,
     dumpRBXPrint,
+    dumpgetState,
+    dumpdecryptState,
     dumpTaskScheduler,
     dumpProto,
     dumpGlobalState,
     dumpLuaState,
     dumpLuaONilObject,
     dumpDummyNode,
+    dumpRBXstep,
+    dumpExecute1,
+    dumpExecute2,
     dumpLuaVmLoad
 } = require( "./offsets/include" );
 
@@ -29,12 +34,17 @@ const dump = () => {
             luaVmLoad : dumpLuaVmLoad( buffer ),
             taskScheduler : dumpTaskScheduler( buffer ),
             rbxPrint : dumpRBXPrint( buffer ),
-            luaState : luaState.luaStateAddress,
-            luaStateDecoder : luaState.decoder.decoderAddress,
+	        getState : dumpgetState( buffer ),
+            decryptState : dumpdecryptState( buffer ),
+            
             proximityPromptTrigger : dumpProximityPromptTrigger( buffer ),
             taskDefer : dumpTaskDefer( buffer ),
             pushInstance : dumpPushInstance( buffer ),
             dummyNode : dumpDummyNode( buffer ),
+
+            luaC_step : dumpRBXstep( buffer ),
+            Execute1 : dumpExecute1( buffer ),
+            Execute2 : dumpExecute2( buffer ),
         },
         struct : {
             globalState : {
