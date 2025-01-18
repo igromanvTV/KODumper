@@ -15,11 +15,12 @@ const dumpGlobalState = (buffer) => {
     let luaGcOffsets = [];
 
     for (let address = LuaFullGCAddress; address < LuaFullGCAddress + 30; address++) {
+        
         let prefix = buffer[address];
         let opcode = buffer[address + 1];
         let value = buffer[address + 3];
 
-        if (prefix === opCode.rexrx && opcode === opCode.movrm64) {
+        if (prefix === opCode.rex && opcode === opCode.movrm64) {
 
             luaGcOffsets.push( value );
         }
@@ -27,7 +28,7 @@ const dumpGlobalState = (buffer) => {
 
     let [ gray, grayagain, weak ] = luaGcOffsets;
 
-    let shuffle3 = shuffle( [ gray, grayagain, weak ], 0x58, 8 );
+    let shuffle3 = shuffle( [ gray, grayagain, weak ], 0x30, 8 );
 
     return {
         fields : {
